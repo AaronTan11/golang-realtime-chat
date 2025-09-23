@@ -34,13 +34,13 @@ func serveWebSocket(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		username = "Anonymous"
 	}
 
-    // Create a new client with simple incrementing numeric ID
-    client := &Client{
-        ID:       hub.NextIDString(),
-        Username: username,
-        Send:     make(chan Message, 256),
-        Hub:      hub,
-    }
+	// Create a new client with simple incrementing numeric ID
+	client := &Client{
+		ID:       hub.NextIDString(),
+		Username: username,
+		Send:     make(chan Message, 256),
+		Hub:      hub,
+	}
 
 	// Register the client with the hub
 	client.Hub.Register <- client

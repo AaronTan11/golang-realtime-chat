@@ -20,15 +20,15 @@ const (
 	MessageTypeChat MessageType = "chat"
 	// MessageTypeError indicates an error occurred
 	MessageTypeError MessageType = "error"
-    // MessageTypeWelcome indicates a server welcome with assigned user ID
-    MessageTypeWelcome MessageType = "welcome"
+	// MessageTypeWelcome indicates a server welcome with assigned user ID
+	MessageTypeWelcome MessageType = "welcome"
 )
 
 // Message represents a chat message
 type Message struct {
 	Type      MessageType `json:"type"`
 	Username  string      `json:"username"`
-    UserID    string      `json:"userId,omitempty"`
+	UserID    string      `json:"userId,omitempty"`
 	Content   string      `json:"content,omitempty"`
 	Timestamp time.Time   `json:"timestamp"`
 }
@@ -51,8 +51,8 @@ type Hub struct {
 	Register chan *Client
 	// Unregister requests from clients
 	Unregister chan *Client
-    // nextID is an atomically incremented counter for assigning client IDs
-    nextID uint64
+	// nextID is an atomically incremented counter for assigning client IDs
+	nextID uint64
 }
 
 // NewHub creates a new Hub instance
@@ -67,8 +67,8 @@ func NewHub() *Hub {
 
 // NextIDString increments and returns the next client ID as a string
 func (h *Hub) NextIDString() string {
-    id := atomic.AddUint64(&h.nextID, 1)
-    return strconv.FormatUint(id, 10)
+	id := atomic.AddUint64(&h.nextID, 1)
+	return strconv.FormatUint(id, 10)
 }
 
 // Run starts the hub and handles client registration/unregistration and message broadcasting
@@ -77,40 +77,40 @@ func (h *Hub) Run() {
 		select {
 		case client := <-h.Register:
 			h.Clients[client] = true
-            // Send a welcome message to the newly connected client with their assigned ID
-            select {
-            case client.Send <- Message{
-                Type:      MessageTypeWelcome,
-                Username:  client.Username,
-                UserID:    client.ID,
-                Content:   "Welcome to the chat!",
-                Timestamp: time.Now(),
-            }:
-            default:
-                // if client's send buffer is full, drop welcome
-            }
-            // Notify all clients that someone joined
-            joinMessage := Message{
-                Type:      MessageTypeJoin,
-                Username:  client.Username,
-                UserID:    client.ID,
-                Content:   fmt.Sprintf("%s (%s) joined the chat", client.Username, client.ID),
-                Timestamp: time.Now(),
-            }
+			// Send a welcome message to the newly connected client with their assigned ID
+			select {
+			case client.Send <- Message{
+				Type:      MessageTypeWelcome,
+				Username:  client.Username,
+				UserID:    client.ID,
+				Content:   "Welcome to the chat!",
+				Timestamp: time.Now(),
+			}:
+			default:
+				// if client's send buffer is full, drop welcome
+			}
+			// Notify all clients that someone joined
+			joinMessage := Message{
+				Type:      MessageTypeJoin,
+				Username:  client.Username,
+				UserID:    client.ID,
+				Content:   fmt.Sprintf("%s (%s) joined the chat", client.Username, client.ID),
+				Timestamp: time.Now(),
+			}
 			h.broadcastMessage(joinMessage)
 
 		case client := <-h.Unregister:
 			if _, ok := h.Clients[client]; ok {
 				delete(h.Clients, client)
 				close(client.Send)
-                // Notify all clients that someone left
-                leaveMessage := Message{
-                    Type:      MessageTypeLeave,
-                    Username:  client.Username,
-                    UserID:    client.ID,
-                    Content:   fmt.Sprintf("%s (%s) left the chat", client.Username, client.ID),
-                    Timestamp: time.Now(),
-                }
+				// Notify all clients that someone left
+				leaveMessage := Message{
+					Type:      MessageTypeLeave,
+					Username:  client.Username,
+					UserID:    client.ID,
+					Content:   fmt.Sprintf("%s (%s) left the chat", client.Username, client.ID),
+					Timestamp: time.Now(),
+				}
 				h.broadcastMessage(leaveMessage)
 			}
 

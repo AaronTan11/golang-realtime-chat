@@ -11,7 +11,7 @@ import (
 func main() {
 	// Create a new hub for managing WebSocket connections
 	hub := NewHub()
-	
+
 	// Start the hub in a goroutine
 	go hub.Run()
 
@@ -47,7 +47,7 @@ func main() {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		
+
 		// Get list of connected usernames and detailed entries
 		var usernames []string
 		var detailed []map[string]string
@@ -60,9 +60,9 @@ func main() {
 		}
 
 		response := map[string]interface{}{
-			"users":          usernames,
-			"usersDetailed":  detailed,
-			"count":          len(usernames),
+			"users":         usernames,
+			"usersDetailed": detailed,
+			"count":         len(usernames),
 		}
 
 		json.NewEncoder(w).Encode(response)
@@ -77,11 +77,11 @@ func main() {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		
+
 		stats := map[string]interface{}{
 			"active_connections": len(hub.Clients),
-			"uptime":            time.Since(time.Now()).String(), // This will be 0, but shows the structure
-			"server_time":       time.Now().Format(time.RFC3339),
+			"uptime":             time.Since(time.Now()).String(), // This will be 0, but shows the structure
+			"server_time":        time.Now().Format(time.RFC3339),
 		}
 
 		json.NewEncoder(w).Encode(stats)
@@ -93,12 +93,12 @@ func main() {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-			
+
 			if r.Method == "OPTIONS" {
 				w.WriteHeader(http.StatusOK)
 				return
 			}
-			
+
 			next.ServeHTTP(w, r)
 		})
 	}
@@ -111,10 +111,8 @@ func main() {
 	log.Printf("   - GET  http://localhost%s/api/users  (list connected users)", addr)
 	log.Printf("   - GET  http://localhost%s/api/stats  (server statistics)", addr)
 	log.Printf("   - GET  http://localhost%s/healthz    (health check)", addr)
-	
+
 	if err := http.ListenAndServe(addr, corsHandler(mux)); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("❌ Server error: %v", err)
 	}
 }
-
-

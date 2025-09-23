@@ -1,44 +1,61 @@
-# golang-realtime-chat
+## golang-realtime-chat
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines React, TanStack Router, and more.
+Simple realtime chat built with a Go WebSocket backend and a React frontend. No database — all state is kept in memory for teaching/demo purposes.
 
-## Features
+### What’s inside
 
-- **TypeScript** - For type safety and improved developer experience
-- **TanStack Router** - File-based routing with full type safety
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **shadcn/ui** - Reusable UI components
+- Go backend (`apps/backend`): HTTP server + WebSocket chat hub (join/leave, broadcast, user IDs)
+- Web frontend (`apps/web`): Minimal chat UI (connect, send, users list)
 
-## Getting Started
+### Prerequisites
 
-First, install the dependencies:
+- Go (1.21+ recommended)
+- Bun or Node.js (for the web app)
 
-```bash
-bun install
-```
-
-
-Then, run the development server:
+### Run the backend
 
 ```bash
-bun dev
+cd apps/backend
+go mod tidy
+go run .
+# backend runs on http://localhost:8080
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
+### Configure and run the frontend
 
+```bash
+cd apps/web
+cp .env.example .env
+# edit .env and set the backend URL (defaults shown)
+# VITE_BACKEND_URL=http://localhost:8080
 
-
-## Project Structure
-
+bun install   # or npm install / pnpm install / yarn
+bun dev       # or npm run dev / pnpm dev / yarn dev
+# frontend runs on http://localhost:3001 (per your dev setup)
 ```
-golang-realtime-chat/
-├── apps/
-│   ├── web/         # Frontend application (React + TanStack Router)
-```
 
-## Available Scripts
+### How to use
 
-- `bun dev`: Start all applications in development mode
-- `bun build`: Build all applications
-- `bun dev:web`: Start only the web application
-- `bun check-types`: Check TypeScript types across all apps
+1. Start the backend, then the frontend
+2. Open the web app in multiple tabs
+3. Enter a username and Connect
+4. Send messages; see join/leave and broadcasts in realtime
+
+### Backend endpoints
+
+- `GET /healthz` — health check
+- `GET /api/users` — list of connected users and IDs
+- `GET /api/stats` — basic server stats
+- `WS /ws?username=YourName` — WebSocket chat endpoint
+
+### Concepts demonstrated (for workshops)
+
+- Explicit error handling in Go (`value, err`)
+- Goroutines + channels for concurrency
+- WebSocket lifecycle (upgrade, read/write pumps, heartbeats)
+- In‑memory hub pattern for broadcast and membership
+
+### Notes
+
+- IDs are simple incrementing numbers for clarity in demos
+- All state is ephemeral; restarting the backend resets the room
